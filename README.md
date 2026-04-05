@@ -94,23 +94,3 @@ Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko)
 
 The package is intentionally minimal so you can extend it into a reusable library
 and publish it to PyPI.
-
-## GitHub And PyPI Release Flow
-
-- pull requests to `master` run tests in GitHub Actions
-- published GitHub releases run tests, build `sdist` and `wheel`, then publish to PyPI
-- the publish workflow is in [.github/workflows/release.yml](/home/ubuntu/projects/nscraper/.github/workflows/release.yml)
-
-Before the release workflow can publish, configure Trusted Publishing in PyPI:
-
-1. create the project on PyPI if it does not exist yet
-2. in PyPI, open the project publishing settings
-3. add a trusted publisher for this GitHub repository
-4. use the `release` workflow on the `master` branch
-
-After that, the normal flow is:
-
-1. push code to GitHub
-2. merge to `master`
-3. create a GitHub release for the version tag
-4. let GitHub Actions test, build, and publish the package
