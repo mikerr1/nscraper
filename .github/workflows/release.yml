@@ -11,6 +11,8 @@ jobs:
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -28,8 +30,25 @@ jobs:
       - name: Run tests
         run: uv run pytest
 
+      - name: Validate release tag
+        run: |
+          case "${{ github.event.release.tag_name }}" in
+            v[0-9]*.[0-9]*.[0-9]*) ;;
+            *)
+              echo "Release tag must use vX.Y.Z format"
+              exit 1
+              ;;
+          esac
+
       - name: Build distribution artifacts
         run: uv run --with build python -m build
+
+      - name: Validate built version matches tag
+        run: |
+          version="${{ github.event.release.tag_name }}"
+          version="${version#v}"
+          test -f "dist/nscraper-${version}.tar.gz"
+          test -f "dist/nscraper-${version}-py3-none-any.whl"
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4

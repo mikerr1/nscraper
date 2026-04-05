@@ -1,5 +1,7 @@
 """Public package interface for nscraper."""
 
+from importlib.metadata import PackageNotFoundError, version
+
 from .core import get_scraper, hello
 from .errors import (
     InvalidHeadersError,
@@ -20,6 +22,11 @@ from .utils import (
     write_output,
 )
 
+try:
+    __version__ = version("nscraper")
+except PackageNotFoundError:
+    __version__ = "0.0.0"
+
 __all__ = [
     "BaseScraper",
     "DEFAULT_HEADERS",
@@ -32,6 +39,7 @@ __all__ = [
     "RequestError",
     "ScrapeOptions",
     "SeleniumBaseScraper",
+    "__version__",
     "basic_html_transform",
     "load_cookies_file",
     "hello",

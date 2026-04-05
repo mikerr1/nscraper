@@ -1,18 +1,17 @@
 [build-system]
-requires = []
-build-backend = "build_backend"
-backend-path = ["."]
+requires = ["setuptools>=80", "setuptools-scm[simple]>=8"]
+build-backend = "setuptools.build_meta"
 
 [project]
 name = "nscraper"
-version = "0.1.0"
 description = "A small importable Python module."
 readme = "README.md"
 requires-python = ">=3.10"
-license = { text = "MIT" }
+license = "MIT"
 authors = [
   { name = "mikerr1@github.com" }
 ]
+dynamic = ["version"]
 dependencies = ["niquests==3.18.4", "justhtml==1.14.0"]
 
 [project.scripts]
@@ -20,3 +19,13 @@ nscraper = "nscraper.__main__:main"
 
 [dependency-groups]
 dev = ["pytest"]
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools_scm]
+tag_regex = "^v(?P<version>\\d+\\.\\d+\\.\\d+)$"
+local_scheme = "no-local-version"
