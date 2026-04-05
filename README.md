@@ -5,6 +5,11 @@
 - import it from other projects
 - run it directly with `python -m nscraper`
 
+## License
+
+MIT. You can fork, modify, and reuse it with minimal restrictions as long as
+the license notice is kept with the software.
+
 ## Install
 
 ```bash

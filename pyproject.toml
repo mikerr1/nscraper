@@ -16,7 +16,7 @@ authors = [
 dependencies = ["niquests==3.18.4", "justhtml==1.14.0"]
 
 [project.scripts]
-nscraper = "nscraper.cli:main"
+nscraper = "nscraper.__main__:main"
 
 [dependency-groups]
 dev = ["pytest"]
