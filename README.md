@@ -30,11 +30,10 @@ from nscraper import hello
 print(hello("world"))
 ```
 
-## Run from the command line
+## Run the Module
 
 ```bash
 python -m nscraper
-nscraper
 ```
 
 Fetch a URL:
@@ -56,15 +55,10 @@ python -m nscraper -u https://example.com -H default -c cookies.json
 - runtime dependency: `justhtml==1.9.1`
 - development dependency: `pytest`
 
-## CLI
+## Module Flags
 
-Required:
-
-- `-u` / `--url`
-- `-H` / `--headers`
-
-Optional:
-
+- `-u` / `--url` required
+- `-H` / `--headers` required, or `default`
 - `-e` / `--engine` with `http` or `seleniumbase`
 - `-p` / `--proxy`
 - `--timeout` default `3`
