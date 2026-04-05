@@ -1,0 +1,22 @@
+[build-system]
+requires = []
+build-backend = "build_backend"
+backend-path = ["."]
+
+[project]
+name = "nscraper"
+version = "0.1.0"
+description = "A small importable Python module."
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [
+  { name = "mikerr1@github.com" }
+]
+dependencies = ["niquests==3.18.4", "justhtml==1.14.0"]
+
+[project.scripts]
+nscraper = "nscraper.cli:main"
+
+[dependency-groups]
+dev = ["pytest"]
