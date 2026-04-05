@@ -7,8 +7,8 @@ from pathlib import Path
 import base64
 import csv
 import hashlib
+import io
 import os
-import shutil
 import tarfile
 import tempfile
 import zipfile
@@ -16,6 +16,8 @@ import zipfile
 NAME = "nscraper"
 VERSION = "0.1.0"
 DIST_INFO = f"{NAME}-{VERSION}.dist-info"
+SUMMARY = "A small importable Python module."
+README_PATH = Path(__file__).resolve().parent / "README.md"
 
 
 @dataclass(frozen=True)
@@ -28,6 +30,22 @@ def _normalize(path: str) -> str:
     return path.replace(os.sep, "/")
 
 
+def _metadata_text() -> str:
+    description = README_PATH.read_text(encoding="utf-8")
+    return (
+        "Metadata-Version: 2.1\n"
+        f"Name: {NAME}\n"
+        f"Version: {VERSION}\n"
+        f"Summary: {SUMMARY}\n"
+        "License: MIT\n"
+        "Requires-Dist: niquests==3.18.4\n"
+        "Requires-Dist: justhtml==1.14.0\n"
+        "Description-Content-Type: text/markdown\n"
+        "\n"
+        f"{description}"
+    )
+
+
 def _wheel_metadata() -> list[FileRecord]:
     wheel = (
         "Wheel-Version: 1.0\n"
@@ -35,14 +53,7 @@ def _wheel_metadata() -> list[FileRecord]:
         "Root-Is-Purelib: true\n"
         "Tag: py3-none-any\n"
     )
-    meta = (
-        "Metadata-Version: 2.1\n"
-        f"Name: {NAME}\n"
-        f"Version: {VERSION}\n"
-        "Summary: A small importable Python module with a python -m entry point.\n"
-        "Requires-Dist: niquests==3.18.4\n"
-        "Requires-Dist: justhtml==1.9.1\n"
-    )
+    meta = _metadata_text()
     entry_points = "[console_scripts]\nnscraper = nscraper.__main__:main\n"
     return [
         FileRecord(f"{DIST_INFO}/WHEEL", wheel.encode()),
@@ -58,6 +69,18 @@ def _package_files() -> list[FileRecord]:
         rel = _normalize(str(path.relative_to(root.parent)))
         records.append(FileRecord(rel, path.read_bytes()))
     return records
+
+
+def _sdist_files(root: Path) -> list[tuple[Path, str]]:
+    members = ["build_backend.py", "pyproject.toml", "README.md", "LICENSE"]
+    files = [(root / member, f"{NAME}-{VERSION}/{member}") for member in members]
+    for base in ("src", "tests"):
+        for path in (root / base).rglob("*"):
+            if path.is_dir() or "__pycache__" in path.parts or path.suffix == ".pyc":
+                continue
+            arcname = f"{NAME}-{VERSION}/{path.relative_to(root)}"
+            files.append((path, arcname))
+    return files
 
 
 def _build_wheel_dir(wheel_directory: str, editable: bool = False) -> str:
@@ -127,21 +150,11 @@ def build_sdist(sdist_directory, config_settings=None):
     sdist_name = f"{NAME}-{VERSION}.tar.gz"
     sdist_path = out / sdist_name
     root = Path(__file__).resolve().parent
-    members = [
-        "build_backend.py",
-        "pyproject.toml",
-        "README.md",
-        "src",
-        "tests",
-    ]
+    pkg_info = _metadata_text().encode("utf-8")
     with tarfile.open(sdist_path, "w:gz") as tf:
-        for member in members:
-            path = root / member
-            if path.is_dir():
-                for item in path.rglob("*"):
-                    if "__pycache__" in item.parts:
-                        continue
-                    tf.add(item, arcname=f"{NAME}-{VERSION}/{item.relative_to(root)}")
-            else:
-                tf.add(path, arcname=f"{NAME}-{VERSION}/{member}")
+        for path, arcname in _sdist_files(root):
+            tf.add(path, arcname=arcname)
+        info = tarfile.TarInfo(name=f"{NAME}-{VERSION}/PKG-INFO")
+        info.size = len(pkg_info)
+        tf.addfile(info, fileobj=io.BytesIO(pkg_info))
     return sdist_name
