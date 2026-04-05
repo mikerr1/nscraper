@@ -11,7 +11,14 @@ from .errors import (
 )
 from .models import ScrapeOptions
 from .scraper import BaseScraper, HttpScraper, SeleniumBaseScraper
-from .utils import DEFAULT_HEADERS, basic_html_transform, parse_headers, validate_url, write_output
+from .utils import (
+    DEFAULT_HEADERS,
+    basic_html_transform,
+    load_cookies_file,
+    parse_headers,
+    validate_url,
+    write_output,
+)
 
 __all__ = [
     "BaseScraper",
@@ -26,6 +33,7 @@ __all__ = [
     "ScrapeOptions",
     "SeleniumBaseScraper",
     "basic_html_transform",
+    "load_cookies_file",
     "hello",
     "get_scraper",
     "parse_headers",

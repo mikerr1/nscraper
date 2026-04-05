@@ -19,21 +19,27 @@ pip install nscraper
 For development:
 
 ```bash
-pip install -e ".[dev]"
+uv sync --dev
 ```
 
 ## Use as a module
 
 ```python
-from nscraper import hello
+from nscraper import HttpScraper, ScrapeOptions
 
-print(hello("world"))
+options = ScrapeOptions(
+    url="https://example.com",
+    headers={"Accept": "text/html"},
+)
+
+content = HttpScraper(options).scrape()
+print(content)
 ```
 
 ## Run the Module
 
 ```bash
-python -m nscraper
+python -m nscraper -u https://example.com -H default
 ```
 
 Fetch a URL:
@@ -46,13 +52,17 @@ python -m nscraper -u https://example.com -H default -c cookies.json
 
 ## Current API
 
-- `nscraper.hello(name: str = "world") -> str`
+- `nscraper.ScrapeOptions`
+- `nscraper.BaseScraper`
+- `nscraper.HttpScraper`
+- `nscraper.SeleniumBaseScraper`
+- `nscraper.get_scraper(options: ScrapeOptions) -> BaseScraper`
 - `nscraper.validate_url(url: str) -> str`
 - `nscraper.parse_headers(raw_headers: str | None) -> dict[str, str]`
-- `nscraper.fetch_url(url: str, *, headers: dict[str, str], timeout: float = 3.0, proxy: str | None = None) -> str`
-- `nscraper.run_scrape(options: ScrapeOptions) -> str`
+- `nscraper.load_cookies_file(path: Path | str | None) -> dict[str, str] | None`
+- `nscraper.basic_html_transform(content: str) -> str`
 - runtime dependency: `niquests==3.18.4`
-- runtime dependency: `justhtml==1.9.1`
+- runtime dependency: `justhtml==1.14.0`
 - development dependency: `pytest`
 
 ## Module Flags
@@ -74,7 +84,7 @@ Behavior:
 - use `-H default` to apply the built-in `Accept` and `User-Agent` header dict
 - use `-c` only when you want to send cookies; omit it to keep current behavior
 - output files are always overwritten
-- `basic_html` removes HTML tags and writes the transformed content
+- `basic_html` removes non-content elements and writes cleaned HTML output
 
 Default `User-Agent`:
 
@@ -84,3 +94,23 @@ Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko)
 
 The package is intentionally minimal so you can extend it into a reusable library
 and publish it to PyPI.
+
+## GitHub And PyPI Release Flow
+
+- pull requests to `master` run tests in GitHub Actions
+- published GitHub releases run tests, build `sdist` and `wheel`, then publish to PyPI
+- the publish workflow is in [.github/workflows/release.yml](/home/ubuntu/projects/nscraper/.github/workflows/release.yml)
+
+Before the release workflow can publish, configure Trusted Publishing in PyPI:
+
+1. create the project on PyPI if it does not exist yet
+2. in PyPI, open the project publishing settings
+3. add a trusted publisher for this GitHub repository
+4. use the `release` workflow on the `master` branch
+
+After that, the normal flow is:
+
+1. push code to GitHub
+2. merge to `master`
+3. create a GitHub release for the version tag
+4. let GitHub Actions test, build, and publish the package
