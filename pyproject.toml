@@ -27,5 +27,5 @@ package-dir = {"" = "src"}
 where = ["src"]
 
 [tool.setuptools_scm]
-tag_regex = "^v(?P<version>\\d+\\.\\d+\\.\\d+)$"
+tag_regex = "^v?(?P<version>\\d+\\.\\d+\\.\\d+)$"
 local_scheme = "no-local-version"
