@@ -17,9 +17,17 @@ class InvalidCookiesError(NscraperError):
     """Raised when cookies are missing or malformed."""
 
 
+class InvalidOutputPathError(NscraperError):
+    """Raised when an output path is relative instead of absolute."""
+
+
 class RequestError(NscraperError):
     """Raised when an HTTP request fails with a non-success response."""
 
 
 class NetworkError(NscraperError):
     """Raised when the request cannot be completed due to network issues."""
+
+
+class UnsupportedContentTypeError(NscraperError):
+    """Raised when a response content type is not supported."""
