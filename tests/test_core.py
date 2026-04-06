@@ -1,6 +1,21 @@
+from pathlib import Path
+
 import pytest
 
-from nscraper import InvalidHeadersError, InvalidUrlError, basic_html_transform, parse_headers, validate_url
+from nscraper import (
+    apply_pretty_format,
+    auto_output_path,
+    classify_response_type,
+    InvalidHeadersError,
+    InvalidUrlError,
+    basic_html_transform,
+    fast_html_transform,
+    parse_headers,
+    pretty_html,
+    pretty_json,
+    ResponseTypeClassifier,
+    validate_url,
+)
 
 
 @pytest.mark.parametrize(
@@ -92,3 +107,60 @@ def test_basic_html_transform_removes_hidden_and_ad_like_nodes():
     assert "Newsletter" not in cleaned
     assert "Hidden" not in cleaned
     assert "Keep" in cleaned
+
+
+def test_fast_html_transform_keeps_head_and_ad_like_nodes():
+    html = """
+    <html>
+      <head><title>Keep</title><meta name="x" content="1"></head>
+      <body>
+        <div class="ads">Ad</div>
+        <div hidden>Hidden attr</div>
+        <script>bad()</script>
+        <div class="content">Keep</div>
+      </body>
+    </html>
+    """
+    cleaned = fast_html_transform(html)
+    assert "<script" not in cleaned
+    assert "bad()" not in cleaned
+    assert "Ad" in cleaned
+    assert "Hidden attr" in cleaned
+    assert "<title>Keep</title>" in cleaned
+    assert "Keep" in cleaned
+
+
+def test_pretty_html_formats_output_with_line_breaks():
+    pretty = pretty_html("<html><body><div>Hello</div></body></html>")
+
+    assert "<html>" in pretty
+    assert "\n" in pretty
+    assert "Hello" in pretty
+
+
+def test_pretty_json_formats_output_with_indentation():
+    pretty = pretty_json('{"ok":true}')
+
+    assert "{\n" in pretty
+    assert '  "ok": true\n' in pretty
+
+
+def test_apply_pretty_format_uses_json_for_json_content_type():
+    pretty = apply_pretty_format('{"ok":true}', classify_response_type("application/json"))
+
+    assert '  "ok": true' in pretty
+
+
+def test_response_type_classifier_detects_html_json_and_text():
+    classifier = ResponseTypeClassifier()
+
+    assert classifier.classify("text/html; charset=utf-8").kind == "html"
+    assert classifier.classify("application/json").kind == "json"
+    assert classifier.classify("text/plain").kind == "text"
+    assert classifier.classify("application/xml").kind == "xml"
+
+
+def test_auto_output_path_uses_json_suffix_for_json_content():
+    path = auto_output_path(Path(".nscraper") / "httpbin.org", classify_response_type("application/json"))
+
+    assert path == Path(".nscraper") / "httpbin.org.json"

@@ -163,3 +163,5 @@ cython_debug/
 .idea/
 /.codex
 /AGENTS.md
+/.nscraper/
+/scripts/
