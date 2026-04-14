@@ -16,6 +16,12 @@ the license notice is kept with the software.
 pip install nscraper
 ```
 
+To use the SeleniumBase engine, install SeleniumBase alongside nscraper:
+
+```bash
+pip install seleniumbase
+```
+
 For development:
 
 ```bash
@@ -112,6 +118,8 @@ Behavior:
 - response handling is classified by content type; only HTML and JSON responses are supported
 - unsupported content types fail immediately before transform or output is written
 - runtime status lines include per-step timings for request, transform, pretty-formatting, and file write operations
+- the `seleniumbase` engine loads pages in a browser session and returns the final page source
+- the `seleniumbase` engine is optional; if SeleniumBase is not installed, that engine fails with a clear runtime error
 
 Default `User-Agent`:
 
