@@ -6,13 +6,17 @@ build-backend = "setuptools.build_meta"
 name = "nscraper"
 description = "A small importable Python module."
 readme = "README.md"
-requires-python = ">=3.10"
+requires-python = ">=3.14"
 license = "MIT"
 authors = [
   { name = "mikerr1@github.com" }
 ]
 dynamic = ["version"]
-dependencies = ["niquests==3.18.4", "justhtml==1.14.0"]
+dependencies = [
+    "niquests==3.18.4",
+    "justhtml==1.14.0",
+    "seleniumbase==4.48.0",
+]
 
 [project.scripts]
 nscraper = "nscraper.__main__:main"
@@ -29,3 +33,8 @@ where = ["src"]
 [tool.setuptools_scm]
 tag_regex = "^v?(?P<version>\\d+\\.\\d+\\.\\d+)$"
 local_scheme = "no-local-version"
+
+[tool.pytest.ini_options]
+markers = [
+  "integration: tests that require network access or external services",
+]
